@@ -1,13 +1,15 @@
 #!/bin/bash
 
-TMPFILE="/tmp/lxc_containers.csv"
->| ${TMPFILE}
+lxc list -f compact
 
-# TODO: contains trailing ","
-HEADER=$(lxc list | sed -n '2 p' | tr -d " " | sed 's/|/,/g' | tail -c +2)
-BODY=$(lxc list -f csv)
-
-echo "${HEADER}" >> ${TMPFILE}
-echo "${BODY}"   >> ${TMPFILE}
-
-column -ts, ${TMPFILE}
+#TMPFILE="/tmp/lxc_containers.csv"
+#>| ${TMPFILE}
+#
+## TODO: contains trailing ","
+#HEADER=$(lxc list | sed -n '2 p' | tr -d " " | sed 's/|/,/g' | tail -c +2)
+#BODY=$(lxc list -f csv)
+#
+#echo "${HEADER}" >> ${TMPFILE}
+#echo "${BODY}"   >> ${TMPFILE}
+#
+#column -ts, ${TMPFILE}

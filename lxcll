@@ -1,6 +1,6 @@
 #!/bin/bash
 
-lxc list -f compact
+lxc list -c n4s -f compact
 
 #TMPFILE="/tmp/lxc_containers.csv"
 #>| ${TMPFILE}

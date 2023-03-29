@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ -z $1 ];
+then
+	echo "ERROR: Please provide distribution like so:"
+	echo -e "\t$0 focal"
+fi
+
+container_name="$(petname)-$1"
+
+lxc launch images:ubuntu/$1 ${container_name}
+lxc exec ${container_name} -- bash

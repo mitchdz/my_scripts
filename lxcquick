@@ -1,12 +1,55 @@
 #!/bin/bash
 
-if [ -z $1 ];
+help() {
+	# Display Help
+	echo "$0: helper script for quickly creating lxc containers"
+	echo
+	echo "Syntax: $0 [-h|f|i]"
+	echo "options:"
+	echo -e "\ti     Image name ex: jammy jammy/cloud lunar."
+	echo -e "\th     Print this Help."
+	echo -e "\tf     Full setup."
+	echo -e ""
+	echo -e "Examples:"
+	echo -e "\tlxcquick -i jammy/cloud -f"
+}
+
+while getopts ":hfi:" arg; do
+    case "${arg}" in
+        i)
+            IMAGE=${OPTARG}
+            ;;
+        f)
+            FULL_SETUP="TRUE"
+            ;;
+        *)
+            help
+	    exit 0
+            ;;
+    esac
+done
+
+if [ -z $IMAGE ];
 then
-	echo "ERROR: Please provide distribution like so:"
-	echo -e "\t$0 focal"
+	echo "ERROR: Please provide an image name"
+	help
+	exit 1
 fi
 
-container_name="$(petname)-$1"
+# replace "/" in case the user does something such as
+# $0 jammy/cloud
+container_suffix=$(sed "s#/#-#g" <<< $IMAGE)
+container_name="$(petname)-${container_suffix}"
 
-lxc launch images:ubuntu/$1 ${container_name}
-lxc exec ${container_name} -- bash
+echo ${container_name}
+
+lxc launch images:ubuntu/$IMAGE ${container_name}
+
+if [ ! -z ${FULL_SETUP} ];
+then
+	sleep 3
+	lxc exec ${container_name} -- apt-get update -y && apt upgrade -y
+	lxc exec ${container_name} -- apt install -y software-properties-common
+	lxc exec ${container_name} -- bash
+fi
+

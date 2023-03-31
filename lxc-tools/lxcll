@@ -1,0 +1,3 @@
+#!/bin/bash
+
+lxc list -c n4s -f compact

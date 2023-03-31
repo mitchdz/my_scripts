@@ -39,6 +39,7 @@ fi
 # replace "/" in case the user does something such as
 # $0 jammy/cloud
 container_suffix=$(sed "s#/#-#g" <<< $IMAGE)
+# TODO: check no name collision? Pretty rare so low priority
 container_name="$(petname)-${container_suffix}"
 
 echo ${container_name}
@@ -50,6 +51,6 @@ then
 	sleep 3
 	lxc exec ${container_name} -- apt-get update -y && apt upgrade -y
 	lxc exec ${container_name} -- apt install -y software-properties-common
-	lxc exec ${container_name} -- bash
 fi
+lxc exec ${container_name} -- bash
 

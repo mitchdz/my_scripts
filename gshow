@@ -1,0 +1,7 @@
+#!/bin/bash
+
+TMP_FILE="/tmp/gshow.diff"
+
+git show $1 > ${TMP_FILE}
+editor ${TMP_FILE} 
+rm ${TMP_FILE}

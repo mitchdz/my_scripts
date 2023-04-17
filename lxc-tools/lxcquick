@@ -40,7 +40,7 @@ fi
 # $0 jammy/cloud
 container_suffix=$(sed "s#/#-#g" <<< $IMAGE)
 # TODO: check no name collision? Pretty rare so low priority
-container_name="$(petname)-${container_suffix}"
+container_name="lxcquick-$(petname)-${container_suffix}"
 
 echo ${container_name}
 

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-lxc list -c n -f csv | xargs lxc delete --force

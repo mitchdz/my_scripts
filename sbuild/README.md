@@ -15,3 +15,7 @@ Run this command at the root of your directory to build against the chroot:
 ```
 sbuild -s --force-orig-source -c mantic -d mantic
 ```
+To log in to the schroot to update `/etc/apt/sources.list` or other files:
+```
+schroot -c mantic -u root
+```

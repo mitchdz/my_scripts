@@ -1,0 +1,45 @@
+  .ifdef CHECK_RCPT_SPF
+  deny
+    logwrite = Debug: Entering SPF check
+    !acl = acl_local_deny_exceptions
+    #condition = ${run{/usr/bin/spfquery.mail-spf-perl \
+    #             --ip ${quote:$sender_host_address} \
+    #             --scope mfrom \
+    #             --identity ${quote:$sender_address}} \
+    #             {no}{${if eq {$runrc}{1}{yes}{no}}}}
+
+    set acl_m_shell_result = ${run{/bin/bash -c "/usr/bin/spfquery.mail-spf-perl \
+                     --ip ${quote:$sender_host_address} \
+                     --scope mfrom \
+                     --identity ${quote:$sender_address}"}}
+
+    logwrite = Debug: acl_m_shell_result: $runrc
+
+    condition = ${if eq{$acl_m_shell_result}{1}{true}{false}}
+
+    message = [SPF] $sender_host_address is not allowed to send mail from \
+              ${if def:sender_address_domain {$sender_address_domain}}.
+    log_message = SPF check failed.
+
+  defer
+    !acl = acl_local_deny_exceptions
+    condition = ${if eq {$runrc}{5}{yes}{no}}
+    message = Temporary DNS error while checking SPF record.  Try again later.
+
+  warn
+    condition = ${if <={$runrc}{6}{yes}{no}}
+    #logwrite = Debug: acl_m_shell_result: $runrc, spf query command: /usr/bin/spfquery.mail-spf-perl --ip ${quote:$sender_host_address} --scope mfrom --identity ${quote:$sender_address}, the output of the spf query command is: $value
+    add_header = Received-SPF: ${if eq {$runrc}{0}{pass}\
+                                {${if eq {$runrc}{2}{softfail}\
+                                 {${if eq {$runrc}{3}{neutral}\
+                                  {${if eq {$runrc}{4}{permerror}\
+                                   {${if eq {$runrc}{6}{none}{error}}}}}}}}}\
+                                } client-ip=$sender_host_address; \
+                                ${if def:sender_address_domain \
+                                   {envelope-from=${sender_address}; }{}}
+    log_message = SPF check failed (Return Code: $runrc).
+
+  warn
+    condition = ${if >{$runrc}{6}{yes}{no}}
+    log_message = Unexpected error in SPF check.
+  .endif
